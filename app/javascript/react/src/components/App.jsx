@@ -4,6 +4,7 @@ import { Button, Card, Form } from 'react-bootstrap';
 
 const App = () => {
 
+    // Initializations
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState({
         title: "",
@@ -11,6 +12,10 @@ const App = () => {
     });
     const [editPost, setEditPost] = useState(null); // Track the post being edited
     const [error, setError] = useState(null);
+    // Initialize a state variable to store the timer ID (For Error Message!)
+    const [errorTimer, setErrorTimer] = useState(null);
+    // Initializations end
+
 
     useEffect(() => {
         fetchPosts();
@@ -51,6 +56,13 @@ const App = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
+        // Clear any previous error timer
+        if (errorTimer) {
+            clearTimeout(errorTimer);
+        }
+
+        setError(null);  // Reset the error state before making a request
+
         if (editPost) {
             // Update existing post
             axios
@@ -65,6 +77,12 @@ const App = () => {
                 })
                 .catch((error) => {
                     setError("Error updating post. Please check your input and try again.");
+                    // Set a timer to clear the error message after 5 seconds (5000 milliseconds)
+                    const timerId = setTimeout(() => {
+                        setError(null);
+                    }, 5000);
+                    // Store the timer ID in the state variable
+                    setErrorTimer(timerId);
                 });
         } else {
             // Create new post
@@ -75,6 +93,12 @@ const App = () => {
                 })
                 .catch((error) => {
                     setError("Error creating post. Please check your input and try again.");
+                    // Set a timer to clear the error message after 5 seconds (5000 milliseconds)
+                    const timerId = setTimeout(() => {
+                        setError(null);
+                    }, 5000);
+                    // Store the timer ID in the state variable
+                    setErrorTimer(timerId);
                 });
         }
 
@@ -97,35 +121,42 @@ const App = () => {
 
     return (
         <div>
-            <h1 className={"text-center"}>React App</h1>
+            <h3 className={"text-center"}>React App</h3>
             {error && <p className="error">{error}</p>}
 
         {/*Form Part*/}
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="title">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="title"
-                        placeholder="Enter title"
-                        value={newPost.title}
-                        onChange={handleChange}
-                    />
-                </Form.Group>
-                <Form.Group controlId="body">
-                    <Form.Label>Body</Form.Label>
-                    <Form.Control
-                        as="textarea"
-                        name="body"
-                        placeholder="Enter body"
-                        value={newPost.body}
-                        onChange={handleChange}
-                    />
-                </Form.Group>
-
-                <Button type="submit" className={"mt-2"} variant="primary">
-                    {editPost ? "Update" : "Submit"}
-                </Button>
+                <div className="row">
+                    <div className="col-md-4">
+                        <Form.Group controlId="title">
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="title"
+                                placeholder="Enter title (minimum 3 characters)"
+                                value={newPost.title}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+                    </div>
+                    <div className="col-md-4">
+                        <Form.Group controlId="body">
+                            <Form.Label>Body</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                name="body"
+                                placeholder="Enter body (minimum 6 characters)"
+                                value={newPost.body}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+                    </div>
+                    <div className="col-md-4">
+                        <Button type="submit" className={"mt-5"} variant="primary">
+                            {editPost ? "Update" : "Submit"}
+                        </Button>
+                    </div>
+                </div>
             </Form>
 
         {/*All Posts*/}
@@ -143,7 +174,7 @@ const App = () => {
                                     Delete
                                 </Button>
                                 <Button className={"mx-2"}
-                                    variant="info"
+                                    variant="secondary"
                                     onClick={() => handleEdit(post)}
                                 >
                                     Edit
