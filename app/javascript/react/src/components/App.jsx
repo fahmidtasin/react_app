@@ -120,7 +120,7 @@ const App = () => {
 
 
     return (
-        <div>
+        <div className="container">
             <h3 className={"text-center"}>React App</h3>
             {error && <p className="error">{error}</p>}
 
